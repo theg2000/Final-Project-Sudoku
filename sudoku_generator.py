@@ -6,7 +6,9 @@ https://www.geeksforgeeks.org/program-sudoku-generator/
 
 """
 
+
 class SudokuGenerator:
+	
     '''
 	create a sudoku board - initialize class variables and set up the 2D board
 	This should initialize:
@@ -23,26 +25,19 @@ class SudokuGenerator:
 	None
     '''
     def __init__(self, row_length, removed_cells):
-        pass
+        self.row_length = row_length
+        self.removed_cells = removed_cells
+        self.box_length = int(math.sqrt(self.row_length)) # box length will be three since it is always a 9x9 board
+        self.board = [[0 for _ in range(row_length)] for _ in range(row_length)]
 
-    '''
-	Returns a 2D python list of numbers which represents the board
-
-	Parameters: None
-	Return: list[list]
-    '''
+    
     def get_board(self):
-        pass
+        return self.board
 
-    '''
-	Displays the board to the console
-    This is not strictly required, but it may be useful for debugging purposes
 
-	Parameters: None
-	Return: None
-    '''
     def print_board(self):
-        pass
+        for row in self.board:
+            print(row)
 
     '''
 	Determines if num is contained in the specified row (horizontal) of the board
@@ -55,7 +50,7 @@ class SudokuGenerator:
 	Return: boolean
     '''
     def valid_in_row(self, row, num):
-        pass
+        return num not in self.board[row]
 
     '''
 	Determines if num is contained in the specified column (vertical) of the board
@@ -68,7 +63,10 @@ class SudokuGenerator:
 	Return: boolean
     '''
     def valid_in_col(self, col, num):
-        pass
+        for i in range(self.row_length):
+            if self.board[i][col] == num:
+                return False
+        return True
 
     '''
 	Determines if num is contained in the 3x3 box specified on the board
@@ -83,7 +81,11 @@ class SudokuGenerator:
 	Return: boolean
     '''
     def valid_in_box(self, row_start, col_start, num):
-        pass
+        for i in range(self.box_length):
+            for j in range(self.box_length):
+                if self.board[row_start + i][col_start + j] == num:
+                    return False
+        return True
     
     '''
     Determines if it is valid to enter num at (row, col) in the board
@@ -96,7 +98,11 @@ class SudokuGenerator:
 	Return: boolean
     '''
     def is_valid(self, row, col, num):
-        pass
+        # all checks have to pass for num to be considered valid
+        return (self.valid_in_row(row, num) and
+                self.valid_in_col(col, num) and
+                # checks for the exact box by finding the starting index of the box in question
+                self.valid_in_box(row - row % self.row_length, col - col % self.box_length , num))
 
     '''
     Fills the specified 3x3 box with values
@@ -109,7 +115,14 @@ class SudokuGenerator:
 	Return: None
     '''
     def fill_box(self, row_start, col_start):
-        pass
+        nums = list(range(1, self.box_length + 1))
+        random.shuffle(nums)
+
+        indx = 0 #index pointer for loop to help track which number from the list that is placing next
+        for i in range(self.box_length):
+            for j in range(self.box_length):
+                self.board[row_start + i][col_start + j] = nums[indx]
+                indx += 1
     
     '''
     Fills the three boxes along the main diagonal of the board
@@ -119,7 +132,8 @@ class SudokuGenerator:
 	Return: None
     '''
     def fill_diagonal(self):
-        pass
+        for i in range(0, self.row_length, self.box_length):
+            self.fill_box(i, i)
 
     '''
     DO NOT CHANGE
@@ -185,7 +199,14 @@ class SudokuGenerator:
 	Return: None
     '''
     def remove_cells(self):
-        pass
+        count = 0
+        while count < self.removed_cells:
+            row = random.randint(0, self.row_length - 1)
+            col = random.randint(0, self.row_length - 1)
+
+            if self.board[row][col] != 0:
+                self.board[row][col] = 0
+                count += 1
 
 '''
 DO NOT CHANGE
@@ -209,3 +230,4 @@ def generate_sudoku(size, removed):
     sudoku.remove_cells()
     board = sudoku.get_board()
     return board
+
